@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Collection Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Magic: The Gathering Manager</h1>
+        <nav>
+            <button id="nav-search">Recherche</button>
+            <button id="nav-collection">Ma Collection</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="search-view">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Rechercher une carte (ex: Black Lotus)...">
+                <button id="search-btn">Rechercher</button>
+            </div>
+            <div id="results-grid" class="card-grid">
+                </div>
+        </section>
+
+        <section id="collection-view" class="hidden">
+            <h2>Mes Cartes</h2>
+            <div id="collection-grid" class="card-grid">
+                </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
