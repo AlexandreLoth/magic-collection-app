@@ -23,3 +23,23 @@ body {
     gap: 20px;
     margin-top: 20px;
 }
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+#search-input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    flex: 1; /* L'input prend le maximum de place */
+    max-width: 400px;
+}
+
+#language-select, #search-btn {
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
