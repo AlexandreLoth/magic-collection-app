@@ -146,3 +146,39 @@ label {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
+#searchCollection {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px;
+    margin: 20px 0;
+    border: 2px solid #ddd;
+    border-radius: 25px; /* Bordures arrondies pour un look moderne */
+    outline: none;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: border-color 0.3s;
+}
+
+#searchCollection:focus {
+    border-color: #2980b9; /* Devient bleu quand on clique dessus */
+}
+
+.collection-filters {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.collection-filters input, .collection-filters select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

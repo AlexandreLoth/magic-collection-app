@@ -101,7 +101,35 @@
             style="font-size: 0.8em; color: green"
           ></span>
         </h2>
+        <input type="search" name="searchCollection" id="searchCollection">
         <div id="collection-grid" class="card-grid"></div>
+        <div class="collection-filters">
+    <select id="col-filter-color">
+        <option value="">Toutes les couleurs</option>
+        <option value="W">Blanc</option>
+        <option value="U">Bleu</option>
+        <option value="B">Noir</option>
+        <option value="R">Rouge</option>
+        <option value="G">Vert</option>
+        <option value="C">Incolore</option>
+    </select>
+
+    <select id="col-filter-rarity">
+        <option value="">Toutes les raretés</option>
+        <option value="common">Commune</option>
+        <option value="uncommon">Inhabituelle</option>
+        <option value="rare">Rare</option>
+        <option value="mythic">Mythique</option>
+    </select>
+
+    <select id="col-sort-price">
+        <option value="none">Trier par...</option>
+        <option value="asc">Prix croissant</option>
+        <option value="desc">Prix décroissant</option>
+    </select>
+    <input type="text" id="col-filter-set" placeholder="Extension (ex: Dominaria)">
+    <input type="text" id="col-filter-artist" placeholder="Artiste (ex: Villeneuve)">
+</div>
       </section>
     </main>
 

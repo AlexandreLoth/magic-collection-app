@@ -6,6 +6,7 @@ const btnRecherche = document.getElementById("search-btn");
 const setSelect = document.getElementById("set-select");
 const typeSelect = document.getElementById("type-select");
 const raritySelect = document.getElementById("rarity-select");
+const searchCollectionInput = document.getElementById("searchCollection");
 
 // --- 1. La fonction devient "flexible" ---
 // On lui ajoute un paramètre 'query'. Elle peut maintenant chercher n'importe quoi.
@@ -161,6 +162,9 @@ function addToCollection(card) {
       price: cardPrice,
       rarity: card.rarity,
       quantity: 1,
+      colors: card.colors || [],
+      set_name: card.set_name, // Le nom complet de l'extension (ex: "Kaldheim")
+      artist: card.artist,
     };
     myCollection.push(newCard);
     showNotification(`${card.name} ajoutée ! (${cardPrice}€)`, "success");
@@ -184,48 +188,181 @@ navSearchBtn.addEventListener("click", () => {
 });
 
 function displayCollection() {
-  const collectionGrid = document.getElementById("collection-grid");
-  const myCollection = JSON.parse(localStorage.getItem("mtg-collection")) || [];
-  let totalValue = 0;
-
-  collectionGrid.innerHTML = "";
-
-  myCollection.forEach((card) => {
-    // parseFloat transforme le texte "12.50" en nombre 12.5
-    const price = parseFloat(card.price) || 0;
-    totalValue += price * card.quantity;
-    const rarityClass = card.rarity;
-
-    const cardElement = document.createElement("div");
-    cardElement.classList.add("card-item");
-    cardElement.innerHTML = `
-    <img src="${card.image}" alt="${card.name}" style="width: 100%; border-radius: 8px;">
+    const collectionGrid = document.getElementById("collection-grid");
+    const myCollection = JSON.parse(localStorage.getItem("mtg-collection")) || [];
     
-    <div class="card-info">
-        <p class="card-name"><strong>${card.name}</strong></p>
-        
-        <p><span class="rarity-badge ${rarityClass}">${card.rarity}</span></p>
-        
-        <p class="card-price">${price.toFixed(2)}€ / unité</p>
-        
-        <div class="quantity-controls">
-            <button onclick="updateQuantity('${card.id}', -1)">-</button>
-            <span style="font-weight: bold;">x${card.quantity}</span>
-            <button onclick="updateQuantity('${card.id}', 1)">+</button>
-        </div>
-        
-        <button class="delete-btn" onclick="removeFromCollection('${card.id}')">Supprimer</button>
-    </div>
-`;
-    collectionGrid.appendChild(cardElement);
-  });
+    // 1. Récupération des valeurs de tous les filtres
+    const nameFilter = document.getElementById("searchCollection").value.toLowerCase();
+    const colorFilter = document.getElementById("col-filter-color").value;
+    const rarityFilter = document.getElementById("col-filter-rarity").value;
+    const setFilter = document.getElementById("col-filter-set").value.toLowerCase();
+    const artistFilter = document.getElementById("col-filter-artist").value.toLowerCase();
+    const sortPrice = document.getElementById("col-sort-price").value;
 
-  // Assure-toi d'avoir un élément avec cet ID dans ton HTML (ex: dans le <h2>)
-  const displayTotal = document.getElementById("total-price-display");
-  if (displayTotal) {
-    displayTotal.textContent = `Valeur estimée : ${totalValue.toFixed(2)}€`;
-  }
+    // 2. Filtrage des données (Le Prédicat)
+    let filteredData = myCollection.filter(card => {
+        const matchesName = card.name.toLowerCase().includes(nameFilter);
+        const matchesRarity = rarityFilter === "" || card.rarity === rarityFilter;
+        const matchesSet = (card.set_name || "").toLowerCase().includes(setFilter);
+        const matchesArtist = (card.artist || "").toLowerCase().includes(artistFilter);
+        
+        // Gestion de la couleur (on vérifie si le code couleur est présent dans le tableau colors)
+        const matchesColor = colorFilter === "" || (card.colors && card.colors.includes(colorFilter));
+
+        return matchesName && matchesRarity && matchesSet && matchesArtist && matchesColor;
+    });
+
+    // 3. Tri des données par prix
+    if (sortPrice === "asc") {
+        filteredData.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    } else if (sortPrice === "desc") {
+        filteredData.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    }
+
+    // 4. Affichage des résultats
+    collectionGrid.innerHTML = "";
+    let totalValue = 0;
+
+    // Traduction pour l'affichage des raretés
+    const rarityMap = {
+        common: "Commune",
+        uncommon: "Inhabituelle",
+        rare: "Rare",
+        mythic: "Mythique",
+        special: "Spéciale",
+    };
+
+    filteredData.forEach((card) => {
+        const price = parseFloat(card.price) || 0;
+        totalValue += price * card.quantity;
+        const rarityName = rarityMap[card.rarity] || card.rarity;
+
+        const cardElement = document.createElement("div");
+        cardElement.classList.add("card-item");
+        
+        // On utilise ton design avec des <p> pour le retour à la ligne
+        cardElement.innerHTML = `
+            <img src="${card.image}" alt="${card.name}" style="width: 100%; border-radius: 8px;">
+            <div class="card-info">
+                <p class="card-name"><strong>${card.name}</strong></p>
+                <p><span class="rarity-badge ${card.rarity}">${rarityName}</span></p>
+                <p><em>${card.set_name || "Extension inconnue"}</em></p>
+                <p><small>Artiste: ${card.artist || "Inconnu"}</small></p>
+                <p class="card-price">${price.toFixed(2)}€</p>
+                
+                <div class="quantity-controls">
+                    <button onclick="updateQuantity('${card.id}', -1)">-</button>
+                    <span><strong>x${card.quantity}</strong></span>
+                    <button onclick="updateQuantity('${card.id}', 1)">+</button>
+                </div>
+                
+                <button class="delete-btn" onclick="removeFromCollection('${card.id}')">Supprimer</button>
+            </div>
+        `;
+        collectionGrid.appendChild(cardElement);
+    });
+
+    // 5. Mise à jour de la valeur totale affichée
+    const displayTotal = document.getElementById("total-price-display");
+    if (displayTotal) {
+        displayTotal.textContent = `Valeur : ${totalValue.toFixed(2)}€`;
+    }
 }
+const filters = ["searchCollection", "col-filter-color", "col-filter-rarity", "col-filter-set", "col-filter-artist", "col-sort-price"];
+
+const collectionFiltersIds = [
+    "searchCollection", 
+    "col-filter-color", 
+    "col-filter-rarity", 
+    "col-filter-set", 
+    "col-filter-artist", 
+    "col-sort-price"
+];
+
+collectionFiltersIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        // On écoute 'input' pour le texte et 'change' pour les menus
+        const eventType = (el.tagName === "INPUT") ? "input" : "change";
+        el.addEventListener(eventType, () => {
+            displayCollection();
+        });
+    }
+});
+// function displayCollection(filter = "") {
+//   const collectionGrid = document.getElementById("collection-grid");
+//   const myCollection = JSON.parse(localStorage.getItem("mtg-collection")) || [];
+//   let totalValue = 0;
+
+//   collectionGrid.innerHTML = "";
+//   const nameFilter = document
+//     .getElementById("searchCollection")
+//     .value.toLowerCase();
+//   const colorFilter = document.getElementById("col-filter-color").value;
+//   const rarityFilter = document.getElementById("col-filter-rarity").value;
+//   const setFilter = document
+//     .getElementById("col-filter-set")
+//     .value.toLowerCase();
+//   const artistFilter = document
+//     .getElementById("col-filter-artist")
+//     .value.toLowerCase();
+//   const sortPrice = document.getElementById("col-sort-price").value;
+
+//   // LE FILTRAGE MAGIQUE
+//   let filteredData = myCollection.filter((card) => {
+//     const matchesName = card.name.toLowerCase().includes(nameFilter);
+//     const matchesRarity = rarityFilter === "" || card.rarity === rarityFilter;
+//     const matchesSet = card.set_name?.toLowerCase().includes(setFilter);
+//     const matchesArtist = card.artist?.toLowerCase().includes(artistFilter);
+
+//     // Pour la couleur (cas particulier car c'est un tableau)
+//     const matchesColor =
+//       colorFilter === "" || (card.colors && card.colors.includes(colorFilter));
+
+//     return (
+//       matchesName &&
+//       matchesRarity &&
+//       matchesSet &&
+//       matchesArtist &&
+//       matchesColor
+//     );
+//   });
+
+//   // On filtre la collection AVANT de l'afficher
+//   const filteredCollection = myCollection.filter((card) =>
+//     card.name.toLowerCase().includes(filter),
+//   );
+
+//   filteredCollection.forEach((card) => {
+//     const price = parseFloat(card.price) || 0;
+//     totalValue += price * card.quantity;
+//     const rarityClass = card.rarity;
+
+//     const cardElement = document.createElement("div");
+//     cardElement.classList.add("card-item");
+//     cardElement.innerHTML = `
+//             <img src="${card.image}" alt="${card.name}" style="width: 100%; border-radius: 8px;">
+//             <div class="card-info">
+//                 <p class="card-name"><strong>${card.name}</strong></p>
+//                 <p><span class="rarity-badge ${rarityClass}">${card.rarity}</span></p>
+//                 <p class="card-price">${price.toFixed(2)}€</p>
+//                 <div class="quantity-controls">
+//                     <button onclick="updateQuantity('${card.id}', -1)">-</button>
+//                     <span>x${card.quantity}</span>
+//                     <button onclick="updateQuantity('${card.id}', 1)">+</button>
+//                 </div>
+//                 <button class="delete-btn" onclick="removeFromCollection('${card.id}')">Supprimer</button>
+//             </div>
+//         `;
+//     collectionGrid.appendChild(cardElement);
+//   });
+
+//   const displayTotal = document.getElementById("total-price-display");
+//   if (displayTotal) {
+//     displayTotal.textContent = `Valeur : ${totalValue.toFixed(2)}€`;
+//   }
+// }
+
 // Changer la quantité (+1 ou -1)
 function updateQuantity(cardId, change) {
   let myCollection = JSON.parse(localStorage.getItem("mtg-collection"));
@@ -268,3 +405,5 @@ function showNotification(message, type = "success") {
     setTimeout(() => toast.remove(), 500);
   }, 2500);
 }
+
+
