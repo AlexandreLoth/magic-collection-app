@@ -57,3 +57,30 @@ label {
     flex-direction: column; /* Label au-dessus du select */
     margin-right: 10px;
 }
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.quantity-controls button {
+    width: 30px !important; /* Pour faire des petits boutons carrés */
+    padding: 5px !important;
+}
+
+.delete-btn {
+    background-color: #e74c3c !important; /* Rouge pour la suppression */
+}
+.card-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Aligne le bouton supprimer en bas */
+    padding: 15px;
+    height: 100%; /* Pour que toutes les cartes aient la même hauteur */
+}
+
+.card-item img {
+    margin-bottom: 10px;
+}
