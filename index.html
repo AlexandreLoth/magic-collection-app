@@ -16,12 +16,59 @@
             id="search-input"
             placeholder="Rechercher une carte..."
           />
+          <div>
+            <label for="language-select">Langage</label>
+            <select id="language-select">
+              <option value="">Anglais</option>
+              <option value="lang:fr">Français</option>
+              <option value="lang:ja">Japonais</option>
+            </select>
+          </div>
 
-          <select id="language-select">
-            <option value="">Anglais</option>
-            <option value="lang:fr">Français</option>
-            <option value="lang:ja">Japonais</option>
-          </select>
+          <div>
+            <label for="color-select">Couleur</label>
+            <select id="color-select">
+              <option value="">Tous</option>
+              <option value="W">Blanc</option>
+              <option value="U">Bleu</option>
+              <option value="C">Incolore</option>
+              <option value="multi">Multicolore</option>
+              <option value="B">Noir</option>
+              <option value="R">Rouge</option>
+              <option value="G">Vert</option>
+            </select>
+          </div>
+          <div>
+            <label for="color-count-select">Nombre de couleurs</label>
+            <select id="color-count-select">
+              <option value="">Toutes</option>
+              <option value="1">Monocolore</option>
+              <option value="2">Bicolore</option>
+              <option value="3">Tricolore</option>
+              <option value="4">Quadricolore</option>
+              <option value="5">Pentacolore</option>
+            </select>
+          </div>
+          <div>
+            <label for="type-select">Tyoe</label>
+            <select id="type-select">
+              <option value="">Tous les types</option>
+              <option value="artifact">Artefact</option>
+              <option value="creature">Créature</option>
+              <option value="enchantment">Enchantement</option>
+              <option value="instant">Éphémère</option>
+              <option value="sorcery">Rituel</option>
+              <option value="planeswalker">Planeswalker</option>
+              <option value="land">Terrain</option>
+              <option value="battle">Bataille</option>
+            </select>
+          </div>
+          <div>
+            <label for="set-select">Extensions</label>
+            <select id="set-select">
+              <option value="">Toutes les extensions</option>
+            </select>
+          </div>
 
           <button id="search-btn">Rechercher</button>
         </div>
@@ -31,14 +78,6 @@
 
     <main>
       <section id="search-view">
-        <div class="search-bar">
-          <input
-            type="text"
-            id="search-input"
-            placeholder="Rechercher une carte (ex: Black Lotus)..."
-          />
-          <button id="search-btn">Rechercher</button>
-        </div>
         <div id="results-grid" class="card-grid"></div>
       </section>
 

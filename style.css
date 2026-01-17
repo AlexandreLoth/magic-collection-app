@@ -25,6 +25,11 @@ body {
 }
 .search-bar {
     display: flex;
+    flex-wrap: wrap; /* Pour que ça revienne à la ligne sur mobile */
+    align-items: flex-end; /* Aligne les labels et selects en bas */
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
     gap: 10px;
     margin-bottom: 20px;
     justify-content: center;
@@ -38,8 +43,17 @@ body {
     max-width: 400px;
 }
 
-#language-select, #search-btn {
+#language-select, #search-btn, #color-select , #type-select, #color-count-select, #set-select{
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
+}
+label {
+    text-align: center;
+}
+
+.search-bar div {
+    display: flex;
+    flex-direction: column; /* Label au-dessus du select */
+    margin-right: 10px;
 }
