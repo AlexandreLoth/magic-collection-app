@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="toast-container"></div>
     <header>
       <h1>Magic: The Gathering Manager</h1>
       <nav>
@@ -64,6 +65,17 @@
             </select>
           </div>
           <div>
+            <label for="rarity-select">Rareté</label>
+            <select id="rarity-select">
+              <option value="">Toutes</option>
+              <option value="r:common">Commune</option>
+              <option value="r:uncommon">Inhabituelle</option>
+              <option value="r:rare">Rare</option>
+              <option value="r:mythic">Mythique</option>
+              <option value="r:special">Spéciale</option>
+            </select>
+          </div>
+          <div>
             <label for="set-select">Extensions</label>
             <select id="set-select">
               <option value="">Toutes les extensions</option>
@@ -81,9 +93,14 @@
       <section id="search-view">
         <div id="results-grid" class="card-grid"></div>
       </section>
-
       <section id="collection-view" class="hidden">
-        <h2>Mes Cartes</h2>
+        <h2>
+          Mes Cartes
+          <span
+            id="total-price-display"
+            style="font-size: 0.8em; color: green"
+          ></span>
+        </h2>
         <div id="collection-grid" class="card-grid"></div>
       </section>
     </main>

@@ -43,7 +43,7 @@ body {
     max-width: 400px;
 }
 
-#language-select, #search-btn, #color-select , #type-select, #color-count-select, #set-select{
+#language-select, #search-btn, #color-select , #type-select, #color-count-select, #set-select, #rarity-select{
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
@@ -83,4 +83,66 @@ label {
 
 .card-item img {
     margin-bottom: 10px;
+}
+/* Style du badge général */
+.rarity-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    color: white;
+}
+
+/* Couleurs par rareté */
+.common { background-color: #333; }      /* Noir/Gris foncé */
+.uncommon { background-color: #708090; }  /* Argenté/Gris bleu */
+.rare { background-color: #b8860b; }      /* Doré */
+.mythic { background-color: #ff4500; }    /* Orange/Rouge mythique */
+.special { background-color: #9370db; }   /* Violet */
+
+.card-info {
+    padding: 10px;
+    text-align: center;
+}
+
+.card-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.toast {
+    background: #333; /* Couleur par défaut */
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-top: 10px;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-left: 5px solid transparent; /* Petite barre colorée sur le côté */
+}
+
+/* Style Succès (Nouvelle carte) */
+.toast.success {
+    border-left-color: #27ae60; /* Vert */
+    background: #1e272e;
+}
+
+/* Style Update (Quantité +1) */
+.toast.update {
+    border-left-color: #2980b9; /* Bleu */
+    background: #1e272e;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
