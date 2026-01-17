@@ -7,6 +7,7 @@ const setSelect = document.getElementById("set-select");
 const typeSelect = document.getElementById("type-select");
 const raritySelect = document.getElementById("rarity-select");
 const searchCollectionInput = document.getElementById("searchCollection");
+const navDecksBtn = document.getElementById("nav-decks");
 
 // --- 1. La fonction devient "flexible" ---
 // On lui ajoute un paramètre 'query'. Elle peut maintenant chercher n'importe quoi.
@@ -179,11 +180,13 @@ const collectionView = document.getElementById("collection-view");
 
 navCollectionBtn.addEventListener("click", () => {
   searchView.classList.add("hidden");
+  decksView.classList.add("hidden");
   collectionView.classList.remove("hidden");
-  displayCollection(); // On appelle la fonction qui dessine la collection
+    displayCollection(); // On appelle la fonction qui dessine la collection
 });
 navSearchBtn.addEventListener("click", () => {
   collectionView.classList.add("hidden");
+  decksView.classList.add("hidden");
   searchView.classList.remove("hidden");
 });
 
@@ -289,79 +292,6 @@ collectionFiltersIds.forEach(id => {
         });
     }
 });
-// function displayCollection(filter = "") {
-//   const collectionGrid = document.getElementById("collection-grid");
-//   const myCollection = JSON.parse(localStorage.getItem("mtg-collection")) || [];
-//   let totalValue = 0;
-
-//   collectionGrid.innerHTML = "";
-//   const nameFilter = document
-//     .getElementById("searchCollection")
-//     .value.toLowerCase();
-//   const colorFilter = document.getElementById("col-filter-color").value;
-//   const rarityFilter = document.getElementById("col-filter-rarity").value;
-//   const setFilter = document
-//     .getElementById("col-filter-set")
-//     .value.toLowerCase();
-//   const artistFilter = document
-//     .getElementById("col-filter-artist")
-//     .value.toLowerCase();
-//   const sortPrice = document.getElementById("col-sort-price").value;
-
-//   // LE FILTRAGE MAGIQUE
-//   let filteredData = myCollection.filter((card) => {
-//     const matchesName = card.name.toLowerCase().includes(nameFilter);
-//     const matchesRarity = rarityFilter === "" || card.rarity === rarityFilter;
-//     const matchesSet = card.set_name?.toLowerCase().includes(setFilter);
-//     const matchesArtist = card.artist?.toLowerCase().includes(artistFilter);
-
-//     // Pour la couleur (cas particulier car c'est un tableau)
-//     const matchesColor =
-//       colorFilter === "" || (card.colors && card.colors.includes(colorFilter));
-
-//     return (
-//       matchesName &&
-//       matchesRarity &&
-//       matchesSet &&
-//       matchesArtist &&
-//       matchesColor
-//     );
-//   });
-
-//   // On filtre la collection AVANT de l'afficher
-//   const filteredCollection = myCollection.filter((card) =>
-//     card.name.toLowerCase().includes(filter),
-//   );
-
-//   filteredCollection.forEach((card) => {
-//     const price = parseFloat(card.price) || 0;
-//     totalValue += price * card.quantity;
-//     const rarityClass = card.rarity;
-
-//     const cardElement = document.createElement("div");
-//     cardElement.classList.add("card-item");
-//     cardElement.innerHTML = `
-//             <img src="${card.image}" alt="${card.name}" style="width: 100%; border-radius: 8px;">
-//             <div class="card-info">
-//                 <p class="card-name"><strong>${card.name}</strong></p>
-//                 <p><span class="rarity-badge ${rarityClass}">${card.rarity}</span></p>
-//                 <p class="card-price">${price.toFixed(2)}€</p>
-//                 <div class="quantity-controls">
-//                     <button onclick="updateQuantity('${card.id}', -1)">-</button>
-//                     <span>x${card.quantity}</span>
-//                     <button onclick="updateQuantity('${card.id}', 1)">+</button>
-//                 </div>
-//                 <button class="delete-btn" onclick="removeFromCollection('${card.id}')">Supprimer</button>
-//             </div>
-//         `;
-//     collectionGrid.appendChild(cardElement);
-//   });
-
-//   const displayTotal = document.getElementById("total-price-display");
-//   if (displayTotal) {
-//     displayTotal.textContent = `Valeur : ${totalValue.toFixed(2)}€`;
-//   }
-// }
 
 // Changer la quantité (+1 ou -1)
 function updateQuantity(cardId, change) {
@@ -406,4 +336,93 @@ function showNotification(message, type = "success") {
   }, 2500);
 }
 
+// Navigation pour les Decks
+const decksView = document.getElementById("decks-view");
+document.getElementById("nav-decks").addEventListener("click", () => {
+    searchView.classList.add("hidden");
+    collectionView.classList.add("hidden");
+    decksView.classList.remove("hidden");
+    displayDecks();
+});
 
+function createNewDeck() {
+    const name = document.getElementById("new-deck-name").value.trim();
+    const format = document.getElementById("new-deck-format").value;
+
+    if (!name) {
+        showNotification("Donnez un nom à votre deck !", "error");
+        return;
+    }
+
+    let allDecks = JSON.parse(localStorage.getItem("mtg-decks")) || [];
+    
+    const newDeck = {
+        id: Date.now(), // ID unique basé sur le temps
+        name: name,
+        format: format,
+        cards: []
+    };
+
+    allDecks.push(newDeck);
+    localStorage.setItem("mtg-decks", JSON.stringify(allDecks));
+    
+    document.getElementById("new-deck-name").value = "";
+    displayDecks();
+    showNotification(`Deck "${name}" créé en format ${format} !`, "success");
+}
+
+function displayDecks() {
+    const decksList = document.getElementById("decks-list");
+    const allDecks = JSON.parse(localStorage.getItem("mtg-decks")) || [];
+    
+    decksList.innerHTML = allDecks.length === 0 ? "<p>Aucun deck créé.</p>" : "";
+
+    allDecks.forEach(deck => {
+        const deckEl = document.createElement("div");
+        deckEl.className = "deck-card"; // Ajoute du style CSS pour ça
+        deckEl.innerHTML = `
+            <h3>${deck.name}</h3>
+            <p>Format: <strong>${deck.format}</strong></p>
+            <p>Cartes: ${deck.cards.length}</p>
+            <button onclick="openDeckBuilder(${deck.id})">Modifier / Ajouter des cartes</button>
+            <button class="delete-btn" onclick="deleteDeck(${deck.id})">Supprimer</button>
+        `;
+        decksList.appendChild(deckEl);
+    });
+}
+function canAddCardToDeck(card, deck) {
+    const count = deck.cards.filter(c => c.name === card.name).length;
+
+    // Règle 1 : Limitation par nombre
+    if (deck.format === "commander" && count >= 1) return "Format Commander : 1 seul exemplaire autorisé !";
+    if (count >= 4) return "4 exemplaires maximum autorisés !";
+
+    // Règle 2 : Format Pauper (uniquement communes)
+    if (deck.format === "pauper" && card.rarity !== "common") return "Format Pauper : Uniquement des cartes communes !";
+
+    return true; // Tout est bon
+}
+const navButtons = document.querySelectorAll('.nav-btn');
+
+function setActiveButton(buttonId) {
+    navButtons.forEach(btn => btn.classList.remove('active'));
+    document.getElementById(buttonId).classList.add('active');
+}
+
+// Ajoute setActiveButton('id-du-bouton') dans tes écouteurs de clic existants
+navCollectionBtn.addEventListener("click", () => {
+    // ... ton code actuel ...
+    setActiveButton('nav-collection');
+});
+
+navSearchBtn.addEventListener("click", () => {
+    // ... ton code actuel ...
+    setActiveButton('nav-search');
+});
+
+// N'oublie pas pour le bouton Mes Decks
+navDecksBtn.addEventListener("click", () => {
+    setActiveButton('nav-decks');
+});
+
+setActiveButton('nav-search');

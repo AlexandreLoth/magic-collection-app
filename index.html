@@ -84,8 +84,9 @@
 
           <button id="search-btn">Rechercher</button>
         </div>
-        <button id="nav-collection">Ma Collection</button>
-        <button id="nav-search">Rechercher des cartes</button>
+        <button id="nav-collection" class="nav-btn">Ma Collection</button>
+        <button id="nav-search" class="nav-btn">Rechercher des cartes</button>
+        <button id="nav-decks" class="nav-btn">Mes Decks</button>
       </nav>
     </header>
 
@@ -93,17 +94,7 @@
       <section id="search-view">
         <div id="results-grid" class="card-grid"></div>
       </section>
-      <section id="collection-view" class="hidden">
-        <h2>
-          Mes Cartes
-          <span
-            id="total-price-display"
-            style="font-size: 0.8em; color: green"
-          ></span>
-        </h2>
-        <input type="search" name="searchCollection" id="searchCollection">
-        <div id="collection-grid" class="card-grid"></div>
-        <div class="collection-filters">
+      <div class="collection-filters">
     <select id="col-filter-color">
         <option value="">Toutes les couleurs</option>
         <option value="W">Blanc</option>
@@ -130,6 +121,31 @@
     <input type="text" id="col-filter-set" placeholder="Extension (ex: Dominaria)">
     <input type="text" id="col-filter-artist" placeholder="Artiste (ex: Villeneuve)">
 </div>
+      <section id="collection-view" class="hidden">
+        <h2>
+          Mes Cartes
+          <span
+            id="total-price-display"
+            style="font-size: 0.8em; color: green"
+          ></span>
+        </h2>
+        <input type="search" name="searchCollection" id="searchCollection">
+        <div id="collection-grid" class="card-grid"></div>
+        
+      </section>
+      <section>
+        <section id="decks-view" class="hidden">
+    <h2>Mes Decks</h2>
+    <div class="deck-creation-bar">
+        <input type="text" id="new-deck-name" placeholder="Nom du deck...">
+        <select id="new-deck-format">
+            <option value="standard">Standard / Modern (Max 4)</option>
+            <option value="commander">Commander (Max 1 / 100 cartes)</option>
+            <option value="pauper">Pauper (Max 4 / Communes uniquement)</option>
+        </select>
+        <button onclick="createNewDeck()">Créer le Deck</button>
+    </div>
+    <div id="decks-list"></div> </section>
       </section>
     </main>
 
