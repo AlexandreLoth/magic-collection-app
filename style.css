@@ -52,3 +52,29 @@ nav { display: flex; justify-content: center; gap: 10px; }
 
 #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
 .toast { background: #2c3e50; color: white; padding: 12px 25px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.color-count-selector {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.count-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.count-btn:hover {
+    background: #f0f0f0;
+}
+
+.count-btn.active {
+    background: #27ae60;
+    color: white;
+    border-color: #219150;
+}

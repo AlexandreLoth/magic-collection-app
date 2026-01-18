@@ -58,13 +58,18 @@
               >
             </div>
           </div>
-          <div class="filter-group">
-            <label>Nombre de couleurs (Précision)</label>
-            <select id="color-operator">
-              <option value=">=">Au moins ces couleurs (OU / Large)</option>
-              <option value="=">Exactement ces couleurs (Strict)</option>
-              <option value="<=">Au maximum ces couleurs (Inclusif)</option>
-            </select>
+          <div class="filter-group full-width">
+            <label>Nombre exact de couleurs :</label>
+            <div class="color-count-selector">
+              <button type="button" class="count-btn" data-count="1">1</button>
+              <button type="button" class="count-btn" data-count="2">2</button>
+              <button type="button" class="count-btn" data-count="3">3</button>
+              <button type="button" class="count-btn" data-count="4">4</button>
+              <button type="button" class="count-btn" data-count="5">5</button>
+              <button type="button" class="count-btn active" data-count="any">
+                Toutes
+              </button>
+            </div>
           </div>
 
           <div class="search-filters-grid">

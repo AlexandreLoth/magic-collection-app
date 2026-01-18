@@ -1,3 +1,15 @@
+let selectedColorCount = "any";
+
+document.querySelectorAll('.count-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Retirer la classe active des autres boutons
+        document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+        // Ajouter active au bouton cliqué
+        e.target.classList.add('active');
+        // Stocker la valeur
+        selectedColorCount = e.target.dataset.count;
+    });
+});
 // --- SÉLECTION DES VUES ---
 const searchView = document.getElementById("search-view");
 const collectionView = document.getElementById("collection-view");
@@ -65,15 +77,21 @@ document.getElementById("search-btn").addEventListener("click", async () => {
   if (set) queryParts.push(`set:${set}`);
   if (type) queryParts.push(`type:${type}`);
   if (rarity) queryParts.push(rarity);
-  // --- LOGIQUE DE COULEUR AMÉLIORÉE ---
-  if (checkedColors) {
-    const operator = document.getElementById("color-operator").value;
-    // Si l'utilisateur coche Bleu et Vert :
-    // operator "=" et "UG" -> Cherche les cartes strictement bicolores Bleu/Vert
-    // operator ">=" et "UG" -> Cherche les cartes ayant AU MOINS Bleu et Vert (donc 2, 3, 4 ou 5 couleurs)
-    // operator "<=" et "UG" -> Cherche les cartes qui ne dépassent pas Bleu et Vert (donc Vert seul, Bleu seul, ou Bleu/Vert)
-    queryParts.push(`c${operator}${checkedColors}`);
-  }
+// --- LOGIQUE DE COULEUR ULTRA-PRÉCISE ---
+if (checkedColors) {
+    if (selectedColorCount !== "any") {
+        // Exemple : l'utilisateur coche Bleu/Vert et choisit "2"
+        // Résultat : c=2 c:UG (Seulement les cartes bicolores Bleu-Vert)
+        queryParts.push(`c:${checkedColors}`);
+        queryParts.push(`c=${selectedColorCount}`);
+    } else {
+        // Si "Toutes" est sélectionné, on reste sur une recherche large
+        queryParts.push(`c>=${checkedColors}`);
+    }
+} else if (selectedColorCount !== "any") {
+    // Si aucune couleur cochée mais un nombre choisi (ex: chercher toutes les tricolores du jeu)
+    queryParts.push(`c=${selectedColorCount}`);
+}
 
   if (queryParts.length === 0)
     return showNotification("Entrez au moins un critère !");
