@@ -77,20 +77,24 @@ document.getElementById("search-btn").addEventListener("click", async () => {
   if (set) queryParts.push(`set:${set}`);
   if (type) queryParts.push(`type:${type}`);
   if (rarity) queryParts.push(rarity);
-// --- LOGIQUE DE COULEUR ULTRA-PRÉCISE ---
-if (checkedColors) {
-    if (selectedColorCount !== "any") {
-        // Exemple : l'utilisateur coche Bleu/Vert et choisit "2"
-        // Résultat : c=2 c:UG (Seulement les cartes bicolores Bleu-Vert)
-        queryParts.push(`c:${checkedColors}`);
-        queryParts.push(`c=${selectedColorCount}`);
+// --- LOGIQUE DE COULEUR DÉFINITIVE ---
+if (selectedColorCount !== "any") {
+    if (selectedColorCount === "0") {
+        // "id:c" cherche les cartes dont l'IDENTITÉ est incolore 
+        // (exclut les cartes avec des symboles de mana colorés dans le texte ou le coût)
+        queryParts.push(`id:c`); 
     } else {
-        // Si "Toutes" est sélectionné, on reste sur une recherche large
-        queryParts.push(`c>=${checkedColors}`);
+        // Pour 1 à 5 couleurs
+        queryParts.push(`c=${selectedColorCount}`);
+        
+        if (checkedColors) {
+            // On utilise "id" ici aussi pour être très restrictif selon tes choix
+            queryParts.push(`id:${checkedColors}`);
+        }
     }
-} else if (selectedColorCount !== "any") {
-    // Si aucune couleur cochée mais un nombre choisi (ex: chercher toutes les tricolores du jeu)
-    queryParts.push(`c=${selectedColorCount}`);
+} else if (checkedColors) {
+    // Si "Toutes" est sélectionné mais des couleurs sont cochées
+    queryParts.push(`id>=${checkedColors}`);
 }
 
   if (queryParts.length === 0)
