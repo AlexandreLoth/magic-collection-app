@@ -3,151 +3,274 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Magic Collection Manager</title>
+    <title>Magic Collection Manager PRO</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div id="toast-container"></div>
+
     <header>
       <h1>Magic: The Gathering Manager</h1>
       <nav>
-        <div class="search-bar">
-          <input
-            type="text"
-            id="search-input"
-            placeholder="Rechercher une carte..."
-          />
-          <div>
-            <label for="language-select">Langage</label>
-            <select id="language-select">
-              <option value="">Anglais</option>
-              <option value="lang:fr">Français</option>
-              <option value="lang:ja">Japonais</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="color-select">Couleur</label>
-            <select id="color-select">
-              <option value="">Tous</option>
-              <option value="W">Blanc</option>
-              <option value="U">Bleu</option>
-              <option value="C">Incolore</option>
-              <option value="multi">Multicolore</option>
-              <option value="B">Noir</option>
-              <option value="R">Rouge</option>
-              <option value="G">Vert</option>
-            </select>
-          </div>
-          <div>
-            <label for="color-count-select">Nombre de couleurs</label>
-            <select id="color-count-select">
-              <option value="">Toutes</option>
-              <option value="1">Monocolore</option>
-              <option value="2">Bicolore</option>
-              <option value="3">Tricolore</option>
-              <option value="4">Quadricolore</option>
-              <option value="5">Pentacolore</option>
-            </select>
-          </div>
-          <div>
-            <label for="type-select">Tyoe</label>
-            <select id="type-select">
-              <option value="">Tous les types</option>
-              <option value="artifact">Artefact</option>
-              <option value="creature">Créature</option>
-              <option value="enchantment">Enchantement</option>
-              <option value="instant">Éphémère</option>
-              <option value="sorcery">Rituel</option>
-              <option value="planeswalker">Planeswalker</option>
-              <option value="land">Terrain</option>
-              <option value="battle">Bataille</option>
-            </select>
-          </div>
-          <div>
-            <label for="rarity-select">Rareté</label>
-            <select id="rarity-select">
-              <option value="">Toutes</option>
-              <option value="r:common">Commune</option>
-              <option value="r:uncommon">Inhabituelle</option>
-              <option value="r:rare">Rare</option>
-              <option value="r:mythic">Mythique</option>
-              <option value="r:special">Spéciale</option>
-            </select>
-          </div>
-          <div>
-            <label for="set-select">Extensions</label>
-            <select id="set-select">
-              <option value="">Toutes les extensions</option>
-            </select>
-          </div>
-
-          <button id="search-btn">Rechercher</button>
-        </div>
-        <button id="nav-collection" class="nav-btn">Ma Collection</button>
-        <button id="nav-search" class="nav-btn">Rechercher des cartes</button>
-        <button id="nav-decks" class="nav-btn">Mes Decks</button>
+        <button id="nav-search" class="nav-btn active">🔍 Recherche</button>
+        <button id="nav-collection" class="nav-btn">📚 Collection</button>
+        <button id="nav-decks" class="nav-btn">🃏 Mes Decks</button>
       </nav>
     </header>
 
     <main>
       <section id="search-view">
+        <div class="search-panel">
+          <div class="search-main">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Nom de la carte, texte, capacité..."
+            />
+          </div>
+
+          <div class="filter-group full-width">
+            <label>Couleurs requises :</label>
+            <div class="color-checkbox-container">
+              <label class="color-label"
+                ><input type="checkbox" class="color-checkbox" value="W" /> ⚪
+                Blanc</label
+              >
+              <label class="color-label"
+                ><input type="checkbox" class="color-checkbox" value="U" /> 🔵
+                Bleu</label
+              >
+              <label class="color-label"
+                ><input type="checkbox" class="color-checkbox" value="B" /> ⚫
+                Noir</label
+              >
+              <label class="color-label"
+                ><input type="checkbox" class="color-checkbox" value="R" /> 🔴
+                Rouge</label
+              >
+              <label class="color-label"
+                ><input type="checkbox" class="color-checkbox" value="G" /> 🟢
+                Vert</label
+              >
+              <label class="color-label"
+                ><input type="checkbox" class="color-checkbox" value="C" /> 💿
+                Incolore</label
+              >
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>Nombre de couleurs (Précision)</label>
+            <select id="color-operator">
+              <option value=">=">Au moins ces couleurs (OU / Large)</option>
+              <option value="=">Exactement ces couleurs (Strict)</option>
+              <option value="<=">Au maximum ces couleurs (Inclusif)</option>
+            </select>
+          </div>
+
+          <div class="search-filters-grid">
+            <div class="filter-group">
+              <label>Trier par</label>
+              <select
+                id="search-sort-select"
+                style="background: #e8f8f5; border-color: #27ae60"
+              >
+                <option value="name|asc">Nom (A-Z)</option>
+                <option value="eur|desc">Prix : Plus cher</option>
+                <option value="eur|asc">Prix : Moins cher</option>
+                <option value="released|desc">Date de sortie</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>Langue</label>
+              <select id="language-select">
+                <option value="">Anglais (Défaut)</option>
+                <option value="lang:fr">Français</option>
+                <option value="lang:de">Allemand</option>
+                <option value="lang:it">Italien</option>
+                <option value="lang:es">Espagnol</option>
+                <option value="lang:pt">Portugais</option>
+                <option value="lang:ja">Japonais</option>
+                <option value="lang:ko">Coréen</option>
+                <option value="lang:ru">Russe</option>
+                <option value="lang:zhs">Chinois Simplifié</option>
+                <option value="lang:ph">Phyrexian</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>Type</label>
+              <select id="type-select">
+                <option value="">Tous</option>
+                <option value="creature">Créature</option>
+                <option value="planeswalker">Planeswalker</option>
+                <option value="instant">Éphémère</option>
+                <option value="sorcery">Rituel</option>
+                <option value="enchantment">Enchantement</option>
+                <option value="artifact">Artefact</option>
+                <option value="battle">Bataille</option>
+                <option value="land">Terrain</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>Rareté</label>
+              <select id="rarity-select">
+                <option value="">Toutes</option>
+                <option value="r:common">Commune</option>
+                <option value="r:uncommon">Inhabituelle</option>
+                <option value="r:rare">Rare</option>
+                <option value="r:mythic">Mythique</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>Artiste</label>
+              <input
+                type="text"
+                id="artist-search-input"
+                placeholder="ex: Magali Villeneuve"
+              />
+            </div>
+
+            <div class="filter-group">
+              <label>Extension</label>
+              <select id="set-select">
+                <option value="">Toutes les extensions</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="search-action">
+            <button id="search-btn">🔍 Lancer la Recherche</button>
+          </div>
+        </div>
         <div id="results-grid" class="card-grid"></div>
       </section>
-      <div class="collection-filters">
-    <select id="col-filter-color">
-        <option value="">Toutes les couleurs</option>
-        <option value="W">Blanc</option>
-        <option value="U">Bleu</option>
-        <option value="B">Noir</option>
-        <option value="R">Rouge</option>
-        <option value="G">Vert</option>
-        <option value="C">Incolore</option>
-    </select>
 
-    <select id="col-filter-rarity">
-        <option value="">Toutes les raretés</option>
-        <option value="common">Commune</option>
-        <option value="uncommon">Inhabituelle</option>
-        <option value="rare">Rare</option>
-        <option value="mythic">Mythique</option>
-    </select>
-
-    <select id="col-sort-price">
-        <option value="none">Trier par...</option>
-        <option value="asc">Prix croissant</option>
-        <option value="desc">Prix décroissant</option>
-    </select>
-    <input type="text" id="col-filter-set" placeholder="Extension (ex: Dominaria)">
-    <input type="text" id="col-filter-artist" placeholder="Artiste (ex: Villeneuve)">
-</div>
       <section id="collection-view" class="hidden">
-        <h2>
-          Mes Cartes
-          <span
-            id="total-price-display"
-            style="font-size: 0.8em; color: green"
-          ></span>
-        </h2>
-        <input type="search" name="searchCollection" id="searchCollection">
+        <div class="collection-header">
+          <h2>
+            Ma Collection (<span id="total-price-display" style="color: #27ae60"
+              >0.00€</span
+            >)
+          </h2>
+          <div id="active-deck-indicator" class="active-deck-banner hidden">
+            Mode Ajout vers : <strong id="active-deck-name-display">---</strong>
+            <button onclick="deselectDeck()" class="small-btn">
+              Terminer / Annuler
+            </button>
+          </div>
+        </div>
+
+        <div class="collection-filters">
+          <input
+            type="text"
+            id="searchCollection"
+            placeholder="Filtrer par nom..."
+          />
+
+          <select
+            id="col-sort-price"
+            style="background: #e8f8f5; border-color: #27ae60"
+          >
+            <option value="none">Trier par...</option>
+            <option value="price_desc">Prix : Plus cher en premier</option>
+            <option value="price_asc">Prix : Moins cher en premier</option>
+            <option value="name_asc">Nom (A-Z)</option>
+            <option value="rarity_desc">Rareté</option>
+          </select>
+
+          <select id="col-filter-color">
+            <option value="">Toutes couleurs</option>
+            <option value="W">Blanc</option>
+            <option value="U">Bleu</option>
+            <option value="B">Noir</option>
+            <option value="R">Rouge</option>
+            <option value="G">Vert</option>
+          </select>
+          <input type="text" id="col-filter-set" placeholder="Extension..." />
+          <input type="text" id="col-filter-artist" placeholder="Artiste..." />
+        </div>
         <div id="collection-grid" class="card-grid"></div>
-        
       </section>
-      <section>
-        <section id="decks-view" class="hidden">
-    <h2>Mes Decks</h2>
-    <div class="deck-creation-bar">
-        <input type="text" id="new-deck-name" placeholder="Nom du deck...">
-        <select id="new-deck-format">
-            <option value="standard">Standard / Modern (Max 4)</option>
-            <option value="commander">Commander (Max 1 / 100 cartes)</option>
-            <option value="pauper">Pauper (Max 4 / Communes uniquement)</option>
-        </select>
-        <button onclick="createNewDeck()">Créer le Deck</button>
-    </div>
-    <div id="decks-list"></div> </section>
+
+      <section id="decks-view" class="hidden">
+        <div class="search-panel">
+          <h2>Nouveau Deck</h2>
+          <div class="deck-creation-bar">
+            <input
+              type="text"
+              id="new-deck-name"
+              placeholder="Nom du deck..."
+            />
+            <select id="new-deck-format">
+              <optgroup label="Classique (60 cartes)">
+                <option value="Standard">Standard</option>
+                <option value="Modern">Modern</option>
+                <option value="Pioneer">Pioneer</option>
+                <option value="Legacy">Legacy</option>
+                <option value="Pauper">Pauper</option>
+              </optgroup>
+              <optgroup label="Arena">
+                <option value="Historic">Historique</option>
+                <option value="Timeless">Intemporel</option>
+                <option value="Brawl">Brawl</option>
+              </optgroup>
+              <optgroup label="Multijoueur (100 cartes)">
+                <option value="Commander">Commander (EDH)</option>
+              </optgroup>
+              <option value="Libre">Libre / Autre</option>
+            </select>
+            <button
+              onclick="createNewDeck()"
+              class="add-btn"
+              style="background: #27ae60; padding: 10px 20px"
+            >
+              + Créer le Deck
+            </button>
+          </div>
+          <hr style="margin: 20px 0; opacity: 0.1" />
+          <h2>Mes Decks</h2>
+          <div id="decks-list"></div>
+        </div>
+      </section>
+
+      <section id="deck-detail-view" class="hidden">
+        <div class="deck-header-info">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+            "
+          >
+            <button onclick="switchView(decksView)" class="nav-btn">
+              ← Retour
+            </button>
+            <button
+              id="add-more-btn"
+              class="nav-btn active"
+              style="background: #3498db"
+            >
+              + Ajouter des cartes depuis ma collection
+            </button>
+          </div>
+          <h2 id="detail-deck-name"></h2>
+          <p
+            id="detail-deck-stats"
+            style="color: #666; margin-bottom: 20px"
+          ></p>
+        </div>
+        <div id="deck-cards-grid" class="card-grid"></div>
       </section>
     </main>
+
+    <div id="card-modal" class="modal hidden">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <img class="modal-content" id="modal-img" />
+    </div>
 
     <script src="app.js"></script>
   </body>
