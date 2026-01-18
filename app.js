@@ -52,99 +52,188 @@ function setActiveNav(id) {
   document.getElementById(id).classList.add("active");
 }
 
-// --- RECHERCHE SCRYFALL (CORRIGÉE POUR RECTO-VERSO) ---
+// --- VARIABLES DE PAGINATION ---
+let currentPage = 1;
+let currentQuery = "";
+let currentSort = "";
+
+// --- RECHERCHE SCRYFALL (AVEC PAGINATION NUMÉROTÉE) ---
 document.getElementById("search-btn").addEventListener("click", async () => {
-  const queryText = document.getElementById("search-input").value.trim();
-  const artist = document.getElementById("artist-search-input").value.trim();
-  const lang = document.getElementById("language-select").value;
-  const set = document.getElementById("set-select").value;
-  const type = document.getElementById("type-select").value;
-  const rarity = document.getElementById("rarity-select").value;
-  const checkedColors = Array.from(
-    document.querySelectorAll(".color-checkbox:checked"),
-  )
-    .map((cb) => cb.value)
-    .join("");
+    currentPage = 1; // Reset à la page 1 lors d'une nouvelle recherche
+    await executeSearch();
+});
 
-  // Tri API
-  const sortValue = document.getElementById("search-sort-select").value;
-  const [sortOrder, sortDir] = sortValue.split("|");
+async function executeSearch() {
+    const queryText = document.getElementById("search-input").value.trim();
+    const artist = document.getElementById("artist-search-input").value.trim();
+    const lang = document.getElementById("language-select").value;
+    const set = document.getElementById("set-select").value;
+    const type = document.getElementById("type-select").value;
+    const rarity = document.getElementById("rarity-select").value;
+    const checkedColors = Array.from(document.querySelectorAll(".color-checkbox:checked")).map(cb => cb.value).join("");
+    
+    const sortValue = document.getElementById("search-sort-select").value; 
+    const [sortOrder, sortDir] = sortValue.split('|');
+    currentSort = `&order=${sortOrder}&dir=${sortDir}`;
 
-  let queryParts = [];
-  if (queryText) queryParts.push(queryText);
-  if (artist) queryParts.push(`a:"${artist}"`);
-  if (lang) queryParts.push(lang);
-  if (set) queryParts.push(`set:${set}`);
-  if (type) queryParts.push(`type:${type}`);
-  if (rarity) queryParts.push(rarity);
-// --- LOGIQUE DE COULEUR DÉFINITIVE ---
-if (selectedColorCount !== "any") {
-    if (selectedColorCount === "0") {
-        // "id:c" cherche les cartes dont l'IDENTITÉ est incolore 
-        // (exclut les cartes avec des symboles de mana colorés dans le texte ou le coût)
-        queryParts.push(`id:c`); 
-    } else {
-        // Pour 1 à 5 couleurs
-        queryParts.push(`c=${selectedColorCount}`);
-        
-        if (checkedColors) {
-            // On utilise "id" ici aussi pour être très restrictif selon tes choix
-            queryParts.push(`id:${checkedColors}`);
+    let queryParts = [];
+    if (queryText) queryParts.push(queryText);
+    if (artist) queryParts.push(`a:"${artist}"`);
+    if (lang) queryParts.push(lang);
+    if (set) queryParts.push(`set:${set}`);
+    if (type) queryParts.push(`type:${type}`);
+    if (rarity) queryParts.push(rarity);
+
+    if (selectedColorCount !== "any") {
+        if (selectedColorCount === "0") {
+            queryParts.push(`id:c`); 
+        } else {
+            queryParts.push(`c=${selectedColorCount}`);
+            if (checkedColors) queryParts.push(`id:${checkedColors}`);
         }
+    } else if (checkedColors) {
+        queryParts.push(`id>=${checkedColors}`);
     }
-} else if (checkedColors) {
-    // Si "Toutes" est sélectionné mais des couleurs sont cochées
-    queryParts.push(`id>=${checkedColors}`);
+
+    if (queryParts.length === 0) return showNotification("Entrez au moins un critère !");
+
+    currentQuery = encodeURIComponent(queryParts.join(" "));
+    
+    // On ajoute le paramètre de page à l'URL
+    const url = `https://api.scryfall.com/cards/search?q=${currentQuery}${currentSort}&page=${currentPage}`;
+
+    resultsGrid.innerHTML = "<p>Recherche en cours...</p>";
+    
+    try {
+        const r = await fetch(url);
+        const d = await r.json();
+        
+        resultsGrid.innerHTML = "";
+        
+        if (!d.data) return resultsGrid.innerHTML = "<p>Aucun résultat trouvé.</p>";
+
+        // Stats et Pagination en HAUT
+        renderPagination(d.total_cards);
+
+        displayCards(d.data);
+
+        // Pagination en BAS
+        renderPagination(d.total_cards);
+
+    } catch (e) { 
+        resultsGrid.innerHTML = "<p>Erreur ou requête invalide.</p>"; 
+    }
 }
 
-  if (queryParts.length === 0)
-    return showNotification("Entrez au moins un critère !");
+function renderPagination(totalCards) {
+    const totalPages = Math.ceil(totalCards / 175);
+    if (totalPages <= 1) return;
 
-  resultsGrid.innerHTML = "<p>Recherche en cours...</p>";
+    const nav = document.createElement("div");
+    nav.className = "full-width pagination-container";
+    
+    // Infos
+    const info = document.createElement("div");
+    info.className = "search-stats";
+    info.innerHTML = `Page <strong>${currentPage}</strong> sur ${totalPages} (${totalCards} cartes)`;
+    nav.appendChild(info);
 
-  const q = encodeURIComponent(queryParts.join(" "));
-  const url = `https://api.scryfall.com/cards/search?q=${q}&order=${sortOrder}&dir=${sortDir}`;
+    const btnGrid = document.createElement("div");
+    btnGrid.className = "pagination-grid";
 
-  try {
-    const r = await fetch(url);
-    const d = await r.json();
-    resultsGrid.innerHTML = "";
-    if (!d.data)
-      return (resultsGrid.innerHTML = "<p>Aucun résultat trouvé.</p>");
+    // Bouton Précédent
+    if (currentPage > 1) {
+        const prev = document.createElement("button");
+        prev.className = "count-btn";
+        prev.textContent = "«";
+        prev.onclick = () => { currentPage--; executeSearch(); window.scrollTo(0,0); };
+        btnGrid.appendChild(prev);
+    }
 
-    d.data.forEach((card) => {
-      // --- CORRECTION CRITIQUE: GESTION RECTO-VERSO (Batailles, etc.) ---
-      let imgUrl, largeImgUrl;
+    // Boutons de pages (on en affiche un nombre limité autour de la page actuelle)
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPages, start + 4);
+    if (end === totalPages) start = Math.max(1, end - 4);
 
-      if (card.image_uris) {
-        // Carte normale
-        imgUrl = card.image_uris.normal;
-        largeImgUrl = card.image_uris.large;
-      } else if (card.card_faces && card.card_faces[0].image_uris) {
-        // Carte Recto-Verso (Bataille, MDFC)
-        imgUrl = card.card_faces[0].image_uris.normal;
-        largeImgUrl = card.card_faces[0].image_uris.large;
-      } else {
-        return; // Carte sans image (très rare)
-      }
+    for (let i = start; i <= end; i++) {
+        const pBtn = document.createElement("button");
+        pBtn.className = `count-btn ${i === currentPage ? "active" : ""}`;
+        pBtn.textContent = i;
+        pBtn.onclick = () => { currentPage = i; executeSearch(); window.scrollTo(0,0); };
+        btnGrid.appendChild(pBtn);
+    }
 
-      const price = card.prices.eur || card.prices.usd || "0.00";
+    // Bouton Suivant
+    if (currentPage < totalPages) {
+        const next = document.createElement("button");
+        next.className = "count-btn";
+        next.textContent = "»";
+        next.onclick = () => { currentPage++; executeSearch(); window.scrollTo(0,0); };
+        btnGrid.appendChild(next);
+    }
 
-      const div = document.createElement("div");
-      div.className = "card-item";
-      div.innerHTML = `
-                <img src="${imgUrl}" onclick="openModal('${largeImgUrl}')" style="width:100%; cursor:zoom-in; border-radius:8px;">
-                <div class="card-info">
-                    <p><strong>${card.name}</strong></p>
-                    <p class="card-price">${price}€</p>
-                    <button class="add-btn" onclick='addToCollection(${JSON.stringify(card).replace(/'/g, "&apos;")})'>Ajouter à ma Collection</button>
-                </div>`;
-      resultsGrid.appendChild(div);
+    nav.appendChild(btnGrid);
+    resultsGrid.appendChild(nav);
+}
+
+// --- FONCTION POUR GÉNÉRER LES CARTES DANS LA GRILLE ---
+function displayCards(cards) {
+    cards.forEach(card => {
+        let imgUrl, largeImgUrl;
+        
+        if (card.image_uris) {
+            imgUrl = card.image_uris.normal;
+            largeImgUrl = card.image_uris.large;
+        } else if (card.card_faces && card.card_faces[0].image_uris) {
+            imgUrl = card.card_faces[0].image_uris.normal;
+            largeImgUrl = card.card_faces[0].image_uris.large;
+        } else {
+            return;
+        }
+
+        const price = card.prices.eur || card.prices.usd || "0.00";
+        
+        const div = document.createElement("div");
+        div.className = "card-item";
+        div.innerHTML = `
+            <img src="${imgUrl}" onclick="openModal('${largeImgUrl}')" style="width:100%; cursor:zoom-in; border-radius:8px;">
+            <div class="card-info">
+                <p><strong>${card.name}</strong></p>
+                <p class="card-price">${price}€</p>
+                <button class="add-btn" onclick='addToCollection(${JSON.stringify(card).replace(/'/g, "&apos;")})'>Ajouter à ma Collection</button>
+            </div>`;
+        resultsGrid.appendChild(div);
     });
-  } catch (e) {
-    resultsGrid.innerHTML = "<p>Erreur ou requête invalide.</p>";
-  }
-});
+}
+
+// --- GESTION DU BOUTON "VOIR PLUS" (PAGINATION) ---
+function renderLoadMoreButton() {
+    const existingBtn = document.getElementById("load-more-btn");
+    if (existingBtn) existingBtn.remove();
+
+    if (nextPageUrl) {
+        const btn = document.createElement("button");
+        btn.id = "load-more-btn";
+        btn.className = "full-width nav-btn";
+        btn.style.margin = "20px 0";
+        btn.style.background = "#3498db";
+        btn.textContent = "Afficher les cartes suivantes...";
+        btn.onclick = async () => {
+            btn.textContent = "Chargement...";
+            try {
+                const r = await fetch(nextPageUrl);
+                const d = await r.json();
+                nextPageUrl = d.has_more ? d.next_page : null;
+                btn.remove(); // On enlève le bouton actuel
+                displayCards(d.data); // On ajoute les nouvelles cartes à la suite
+                renderLoadMoreButton(); // On remet un nouveau bouton si il y a encore des pages
+            } catch (e) {
+                btn.textContent = "Erreur de chargement";
+            }
+        };
+        resultsGrid.appendChild(btn);
+    }
+}
 
 // --- COLLECTION ---
 function addToCollection(card) {
